@@ -3,6 +3,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import Matches from "./pages/Matches";
+import Requests from "./pages/Requests";  // ✅ ADD THIS
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/matches" element={<Matches />} />
+        <Route path="/requests" element={<Requests />} />  {/* ✅ ADD THIS */}
         <Route path="/" element={<Login />} />
       </Routes>
     </BrowserRouter>
