@@ -1,16 +1,23 @@
-import axios from "axios";
+import axios from 'axios';
 
 const api = axios.create({
   baseURL: `${import.meta.env.VITE_API_URL}/api`,
 });
 
-// Har request ke sath token automatically attach hoga
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+// ✅ Interceptor — Token attach karein
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    console.log('🔑 Token being sent:', token);
+    console.log('📤 Request URL:', config.url);
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return config;
-});
+);
 
 export default api;
