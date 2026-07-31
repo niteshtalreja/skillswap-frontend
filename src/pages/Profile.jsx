@@ -58,14 +58,26 @@ export default function Profile() {
   };
 
   const handleRemoveOffer = async (skillId) => {
+  try {
     await removeOfferSkill(skillId);
-    loadSkills();
-  };
+    // ✅ Reload skills after removal
+    const offersRes = await getMyOffers();
+    setOffers(offersRes.data);
+  } catch (err) {
+    console.error('Failed to remove offer skill:', err);
+  }
+}
 
-  const handleRemoveWant = async (skillId) => {
+const handleRemoveWant = async (skillId) => {
+  try {
     await removeWantSkill(skillId);
-    loadSkills();
-  };
+    // ✅ Reload skills after removal
+    const wantsRes = await getMyWants();
+    setWants(wantsRes.data);
+  } catch (err) {
+    console.error('Failed to remove want skill:', err);
+  }
+}
 
   return (
     <div style={{ maxWidth: "500px", margin: "50px auto" }}>
