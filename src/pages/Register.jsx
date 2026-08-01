@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "../services/authService";
-
+import Button from "../components/ui/Button";
+import Card from "../components/ui/Card";
 export default function Register() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
