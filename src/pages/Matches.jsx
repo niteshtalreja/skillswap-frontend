@@ -1,192 +1,175 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import {
-  getMySentRequests,
-  getMyReceivedRequests,
-  acceptExchangeRequest,
-  rejectExchangeRequest,
-  cancelExchangeRequest,
-} from '../services/exchangeRequestService';
+import { getMyMatches } from '../services/matchService';
+import { getMyOffers, getMyWants } from '../services/skillService';
+import { sendExchangeRequest } from '../services/exchangeRequestService';
+import Button from '../components/ui/Button';
+import Card from '../components/ui/Card';
 
-export default function Requests() {
-  const [sentRequests, setSentRequests] = useState([]);
-  const [receivedRequests, setReceivedRequests] = useState([]);
+export default function Matches() {
+  const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-
-  // Load data function
-  const loadData = () => {
-    Promise.all([getMySentRequests(), getMyReceivedRequests()])
-      .then(([sent, received]) => {
-        setSentRequests(sent.data);
-        setReceivedRequests(received.data);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError('Failed to load requests');
-        setLoading(false);
-      });
-  };
-
-  // Accept handler
-  const handleAccept = (id) => {
-    acceptExchangeRequest(id)
-      .then(() => {
-        setSuccess('✅ Request accepted!');
-        loadData();
-      })
-      .catch(() => setError('Failed to accept'));
-  };
-
-  // Reject handler
-  const handleReject = (id) => {
-    rejectExchangeRequest(id)
-      .then(() => {
-        setSuccess('❌ Request rejected');
-        loadData();
-      })
-      .catch(() => setError('Failed to reject'));
-  };
-
-  // Cancel handler
-  const handleCancel = (id) => {
-    cancelExchangeRequest(id)
-      .then(() => {
-        setSuccess('📌 Request cancelled');
-        loadData();
-      })
-      .catch(() => setError('Failed to cancel'));
-  };
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [selectedMatch, setSelectedMatch] = useState(null);
+  const [myOffers, setMyOffers] = useState([]);
+  const [myWants, setMyWants] = useState([]);
+  const [selectedSenderSkill, setSelectedSenderSkill] = useState('');
+  const [selectedReceiverSkill, setSelectedReceiverSkill] = useState('');
+  const [message, setMessage] = useState('');
+  const [requestLoading, setRequestLoading] = useState(false);
+  const [requestSuccess, setRequestSuccess] = useState('');
 
   useEffect(() => {
-    loadData();
+    loadMatches();
+    loadMySkills();
   }, []);
 
-  if (loading) return <p style={{ textAlign: 'center' }}>Loading...</p>;
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'PENDING':
-        return '#ffa500';
-      case 'ACCEPTED':
-        return '#4CAF50';
-      case 'REJECTED':
-        return '#f44336';
-      default:
-        return '#888';
+  const loadMatches = async () => {
+    try {
+      const res = await getMyMatches();
+      setMatches(res.data);
+    } catch (err) {
+      setError('Failed to load matches');
+    } finally {
+      setLoading(false);
     }
   };
 
-  return (
-    <div style={{ maxWidth: '700px', margin: '50px auto', padding: '0 20px' }}>
-      <h2>My Exchange Requests</h2>
-      <Link to="/profile">← Back to Profile</Link>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {success && <p style={{ color: 'green' }}>{success}</p>}
+  const loadMySkills = async () => {
+    try {
+      const [offersRes, wantsRes] = await Promise.all([
+        getMyOffers(),
+        getMyWants()
+      ]);
+      setMyOffers(offersRes.data);
+      setMyWants(wantsRes.data);
+    } catch (err) {
+      console.error('Failed to load skills', err);
+    }
+  };
 
-      <h3>📩 Received</h3>
-      {receivedRequests.length === 0 ? (
-        <p>No received requests</p>
+  const handleSendRequest = async (e) => {
+    e.preventDefault();
+    setRequestLoading(true);
+    setRequestSuccess('');
+    setError('');
+
+    try {
+      await sendExchangeRequest({
+        receiverId: selectedMatch.matchedUserId,
+        senderSkillId: parseInt(selectedSenderSkill),
+        receiverSkillId: parseInt(selectedReceiverSkill),
+        message: message
+      });
+      setRequestSuccess('✅ Exchange request sent successfully!');
+      setTimeout(() => {
+        setShowRequestModal(false);
+        setRequestSuccess('');
+        setSelectedSenderSkill('');
+        setSelectedReceiverSkill('');
+        setMessage('');
+      }, 2000);
+    } catch (err) {
+      setError(err.response?.data || 'Failed to send request');
+    } finally {
+      setRequestLoading(false);
+    }
+  };
+
+  const openRequestModal = (match) => {
+    setSelectedMatch(match);
+    setShowRequestModal(true);
+    setError('');
+    setRequestSuccess('');
+  };
+
+  if (loading) return <p className="text-center text-gray-400">Loading matches...</p>;
+  if (error) return <p className="text-center text-red-500">{error}</p>;
+
+  return (
+    <div className="max-w-4xl mx-auto p-4">
+      <h2 className="text-2xl font-heading font-bold text-white mb-6">Your Matches</h2>
+
+      {matches.length === 0 ? (
+        <p className="text-gray-400">No matches yet. Add more skills to your "Want" list!</p>
       ) : (
-        receivedRequests.map((req) => (
-          <div
-            key={req.id}
-            style={{
-              border: '1px solid #ccc',
-              padding: '16px',
-              margin: '10px 0',
-              borderRadius: '8px',
-              background: req.status === 'PENDING' ? '#fff8e1' : 'white',
-            }}
-          >
-            <strong>{req.sender.name}</strong> wants to learn{' '}
-            <strong>{req.receiverSkill.name}</strong>
-            <br />
-            <small>They offer: {req.senderSkill.name}</small>
-            <br />
-            <small>Message: {req.message || 'No message'}</small>
-            <br />
-            <span style={{ color: getStatusColor(req.status), fontWeight: 'bold' }}>
-              Status: {req.status}
-            </span>
-            {req.status === 'PENDING' && (
-              <div style={{ marginTop: '10px' }}>
-                <button
-                  onClick={() => handleAccept(req.id)}
-                  style={{
-                    marginRight: '8px',
-                    padding: '6px 12px',
-                    background: '#4CAF50',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Accept
-                </button>
-                <button
-                  onClick={() => handleReject(req.id)}
-                  style={{
-                    padding: '6px 12px',
-                    background: '#f44336',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Reject
-                </button>
+        <div className="grid gap-4">
+          {matches.map((m, index) => (
+            <Card key={index} variant="dark" className="flex justify-between items-center">
+              <div>
+                <h3 className="text-lg font-heading font-bold text-white">{m.matchedUserName}</h3>
+                <p className="text-gray-400">{m.matchedUserCity}</p>
+                <p className="text-sm text-gray-400">
+                  Can teach: <strong className="text-primary">{m.skillName}</strong>
+                </p>
               </div>
-            )}
-          </div>
-        ))
+              <Button onClick={() => openRequestModal(m)}>
+                Request Exchange
+              </Button>
+            </Card>
+          ))}
+        </div>
       )}
 
-      <h3>📤 Sent</h3>
-      {sentRequests.length === 0 ? (
-        <p>No sent requests</p>
-      ) : (
-        sentRequests.map((req) => (
-          <div
-            key={req.id}
-            style={{
-              border: '1px solid #ccc',
-              padding: '16px',
-              margin: '10px 0',
-              borderRadius: '8px',
-            }}
-          >
-            <strong>To: {req.receiver.name}</strong>
-            <br />
-            <small>You offer: {req.senderSkill.name}</small>
-            <br />
-            <small>You want: {req.receiverSkill.name}</small>
-            <br />
-            <span style={{ color: getStatusColor(req.status), fontWeight: 'bold' }}>
-              Status: {req.status}
-            </span>
-            {req.status === 'PENDING' && (
-              <div style={{ marginTop: '10px' }}>
-                <button
-                  onClick={() => handleCancel(req.id)}
-                  style={{
-                    padding: '6px 12px',
-                    background: '#888',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                  }}
+      {/* Modal */}
+      {showRequestModal && selectedMatch && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-card p-6 rounded-2xl max-w-md w-full border border-border">
+            <h3 className="text-xl font-heading font-bold text-white">Send Exchange Request</h3>
+            <p className="text-gray-400 mt-2">To: <span className="text-white">{selectedMatch.matchedUserName}</span></p>
+            <form onSubmit={handleSendRequest} className="mt-4 space-y-4">
+              <div>
+                <label className="text-sm text-gray-400">Your Skill to Offer</label>
+                <select
+                  value={selectedSenderSkill}
+                  onChange={(e) => setSelectedSenderSkill(e.target.value)}
+                  required
+                  className="w-full p-2 bg-dark border border-border rounded-lg text-white focus:ring-2 focus:ring-primary"
                 >
-                  Cancel
-                </button>
+                  <option value="">Select your skill...</option>
+                  {myOffers.map((offer) => (
+                    <option key={offer.id} value={offer.skill.id}>
+                      {offer.skill.name}
+                    </option>
+                  ))}
+                </select>
               </div>
-            )}
+              <div>
+                <label className="text-sm text-gray-400">Skill You Want to Learn</label>
+                <select
+                  value={selectedReceiverSkill}
+                  onChange={(e) => setSelectedReceiverSkill(e.target.value)}
+                  required
+                  className="w-full p-2 bg-dark border border-border rounded-lg text-white focus:ring-2 focus:ring-primary"
+                >
+                  <option value="">Select skill...</option>
+                  {myWants.map((want) => (
+                    <option key={want.id} value={want.skill.id}>
+                      {want.skill.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm text-gray-400">Message</label>
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Optional message..."
+                  className="w-full p-2 bg-dark border border-border rounded-lg text-white min-h-[80px] focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              {error && <p className="text-red-500">{error}</p>}
+              {requestSuccess && <p className="text-green-500">{requestSuccess}</p>}
+              <div className="flex gap-2 justify-end">
+                <Button variant="ghost" onClick={() => setShowRequestModal(false)}>Cancel</Button>
+                <Button type="submit" disabled={requestLoading}>
+                  {requestLoading ? 'Sending...' : 'Send Request'}
+                </Button>
+              </div>
+            </form>
           </div>
-        ))
+        </div>
       )}
     </div>
   );

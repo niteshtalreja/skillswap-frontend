@@ -1,12 +1,12 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom"
-import Layout from "./components/layout/Layout"
-import Landing from "./pages/Landing"
-import Login from "./pages/Login"
-import Register from "./pages/Register"
-import Profile from "./pages/Profile"
-import Matches from "./pages/Matches"
-import Requests from "./pages/Requests"
-import Dashboard from './pages/Dashboard'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "./components/layout/Layout";
+import Landing from "./pages/Landing";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Profile from "./pages/Profile";
+import Matches from "./pages/Matches";       // ✅ Import
+import Requests from "./pages/Requests";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
   return (
@@ -17,13 +17,13 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="profile" element={<Profile />} />
-          <Route path="matches" element={<Matches />} />
+          <Route path="matches" element={<Matches />} />     {/* ✅ Route */}
           <Route path="requests" element={<Requests />} />
           <Route path="dashboard" element={<Dashboard />} />
         </Route>
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;
