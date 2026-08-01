@@ -110,13 +110,21 @@ const handleRemoveWant = async (skillId) => {
           onChange={(e) => setOfferInput(e.target.value)}
           required
         />
-        <button type="submit">Add</button>
+        <Button type="submit" variant="success" size="sm">
+            ➕ Add
+        </Button>
       </form>
       <ul>
         {offers.map((o) => (
           <li key={o.id}>
             {o.skill.name}{" "}
-            <button onClick={() => handleRemoveOffer(o.skill.id)}>Remove</button>
+            <Button 
+               variant="danger" 
+               size="sm" 
+               onClick={() => handleRemoveOffer(o.skill.id)}
+            >
+              ✕ Remove
+            </Button>
           </li>
         ))}
       </ul>
@@ -132,13 +140,21 @@ const handleRemoveWant = async (skillId) => {
           onChange={(e) => setWantInput(e.target.value)}
           required
         />
-        <button type="submit">Add</button>
+        <Button type="submit" variant="success" size="sm">
+             ➕ Add
+        </Button>
       </form>
       <ul>
         {wants.map((w) => (
           <li key={w.id}>
             {w.skill.name}{" "}
-            <button onClick={() => handleRemoveWant(w.skill.id)}>Remove</button>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => handleRemoveOffer(o.skill.id)}
+              >
+              ✕ Remove
+            </Button>
           </li>
         ))}
       </ul>

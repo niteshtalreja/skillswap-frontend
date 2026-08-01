@@ -32,13 +32,17 @@ const Navbar = () => {
             </div>
           ) : (
             <div className="hidden md:flex items-center gap-2">
-              <Link to="/login"><Button size="sm" variant="ghost">Login</Button></Link>
-              <Link to="/register"><Button size="sm">Sign Up</Button></Link>
+              <Link to="/login">
+                 <Button size="sm" variant="ghost">Login</Button>
+              </Link>
+              <Link to="/register">
+                 <Button size="sm" variant="primary">Sign Up</Button>
+              </Link>
             </div>
           )}
 
           {/* Mobile Menu Button */}
-          <button 
+          <button
             className="md:hidden text-white p-2"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >

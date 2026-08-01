@@ -52,9 +52,15 @@ export default function Login() {
           required
         /><br /><br />
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
-        </button>
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          className="w-full"
+          disabled={loading}
+              >
+          {loading ? 'Logging in...' : '🚀 Login'}
+        </Button>
       </form>
       <p>New here? <Link to="/register">Register</Link></p>
     </div>

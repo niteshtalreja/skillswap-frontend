@@ -82,9 +82,15 @@ export default function Register() {
           onChange={handleChange}
         /><br /><br />
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Registering..." : "Register"}
-        </button>
+        <Button
+           type="submit"
+           variant="primary"
+           size="lg"
+           className="w-full"
+           disabled={loading}
+          >
+           {loading ? 'Registering...' : '🎉 Create Account'}
+        </Button>
       </form>
       <p>Already have an account? <Link to="/login">Login</Link></p>
     </div>
