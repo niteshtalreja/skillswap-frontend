@@ -86,7 +86,14 @@ const handleRemoveWant = async (skillId) => {
   return (
     <div style={{ maxWidth: "500px", margin: "50px auto" }}>
       <h2>Welcome, {user?.name}!</h2>
-      <Link to="/matches">View My Matches →</Link>
+      <div className="mt-4">
+        <Link
+        to="/matches"  // ✅ YEH SAHI HAI
+        className="text-primary hover:text-primary/80 transition-colors"
+        >
+        View My Matches →
+        </Link>
+      </div>
       <p>Email: {user?.email}</p>
       <p>City: {user?.city}</p>
 
