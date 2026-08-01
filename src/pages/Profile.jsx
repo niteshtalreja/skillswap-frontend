@@ -8,6 +8,8 @@ import {
   removeOfferSkill,
   removeWantSkill,
 } from "../services/skillService";
+import Button from "../components/ui/Button";
+import Card from "../components/ui/Card";
 
 export default function Profile() {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -57,107 +59,86 @@ export default function Profile() {
     }
   };
 
-  // ✅ Remove Offer Handler
-const handleRemoveOffer = async (skillId) => {
-  try {
-    await removeOfferSkill(skillId);
-    // Reload offers list
-    const offersRes = await getMyOffers();
-    setOffers(offersRes.data);
-  } catch (error) {
-    console.error("Error removing offer skill:", error);
-    alert("Failed to remove skill. Please try again.");
-  }
-};
+  const handleRemoveOffer = async (skillId) => {
+    try {
+      await removeOfferSkill(skillId);
+      const offersRes = await getMyOffers();
+      setOffers(offersRes.data);
+    } catch (error) {
+      console.error("Error removing offer skill:", error);
+      alert("Failed to remove skill. Please try again.");
+    }
+  };
 
-// ✅ Remove Want Handler
-const handleRemoveWant = async (skillId) => {
-  try {
-    await removeWantSkill(skillId);
-    // Reload wants list
-    const wantsRes = await getMyWants();
-    setWants(wantsRes.data);
-  } catch (error) {
-    console.error("Error removing want skill:", error);
-    alert("Failed to remove skill. Please try again.");
-  }
-};
+  const handleRemoveWant = async (skillId) => {
+    try {
+      await removeWantSkill(skillId);
+      const wantsRes = await getMyWants();
+      setWants(wantsRes.data);
+    } catch (error) {
+      console.error("Error removing want skill:", error);
+      alert("Failed to remove skill. Please try again.");
+    }
+  };
 
   return (
-    <div style={{ maxWidth: "500px", margin: "50px auto" }}>
-      <h2>Welcome, {user?.name}!</h2>
-      <div className="mt-4">
-        <Link
-        to="/matches"  // ✅ YEH SAHI HAI
-        className="text-primary hover:text-primary/80 transition-colors"
-        >
-        View My Matches →
+    <div className="max-w-2xl mx-auto p-4">
+      <Card variant="dark">
+        <h2 className="text-2xl font-heading font-bold text-white">Welcome, {user?.name}!</h2>
+        <Link to="/matches" className="text-primary hover:text-primary/80 transition-colors mt-2 inline-block">
+          View My Matches →
         </Link>
-        </div>
-      <p>Email: {user?.email}</p>
-      <p>City: {user?.city}</p>
+        <p className="text-gray-400 mt-2">Email: {user?.email}</p>
+        <p className="text-gray-400">City: {user?.city}</p>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <p className="text-red-500 mt-4">{error}</p>}
 
-      <hr />
+        <hr className="my-6 border-border" />
 
-      <h3>Skills I Can Teach (Offer)</h3>
-      <form onSubmit={handleAddOffer}>
-        <input
-          type="text"
-          placeholder="e.g. Excel"
-          value={offerInput}
-          onChange={(e) => setOfferInput(e.target.value)}
-          required
-        />
-        <Button type="submit" variant="success" size="sm">
-            ➕ Add
-        </Button>
-      </form>
-      <ul>
-        {offers.map((o) => (
-          <li key={o.id}>
-            {o.skill.name}{" "}
-            <Button 
-               variant="danger" 
-               size="sm" 
-               onClick={() => handleRemoveOffer(o.skill.id)}
-            >
-              ✕ Remove
-            </Button>
-          </li>
-        ))}
-      </ul>
+        <h3 className="text-lg font-heading font-bold text-white">Skills I Can Teach (Offer)</h3>
+        <form onSubmit={handleAddOffer} className="flex gap-2 mt-2">
+          <input
+            type="text"
+            placeholder="e.g. Excel"
+            value={offerInput}
+            onChange={(e) => setOfferInput(e.target.value)}
+            className="flex-1 p-2 bg-dark border border-border rounded-lg text-white focus:ring-2 focus:ring-primary"
+            required
+          />
+          <Button type="submit" variant="success" size="sm">Add</Button>
+        </form>
+        <ul className="mt-4 space-y-2">
+          {offers.map((o) => (
+            <li key={o.id} className="flex justify-between items-center bg-dark p-3 rounded-lg border border-border">
+              <span className="text-white">{o.skill.name}</span>
+              <Button variant="danger" size="sm" onClick={() => handleRemoveOffer(o.skill.id)}>Remove</Button>
+            </li>
+          ))}
+        </ul>
 
-      <hr />
+        <hr className="my-6 border-border" />
 
-      <h3>Skills I Want to Learn (Want)</h3>
-      <form onSubmit={handleAddWant}>
-        <input
-          type="text"
-          placeholder="e.g. Guitar"
-          value={wantInput}
-          onChange={(e) => setWantInput(e.target.value)}
-          required
-        />
-        <Button type="submit" variant="success" size="sm">
-             ➕ Add
-        </Button>
-      </form>
-      <ul>
-        {wants.map((w) => (
-          <li key={w.id}>
-            {w.skill.name}{" "}
-            <Button
-              variant="danger"
-              size="sm"
-              onClick={() => handleRemoveOffer(o.skill.id)}
-              >
-              ✕ Remove
-            </Button>
-          </li>
-        ))}
-      </ul>
+        <h3 className="text-lg font-heading font-bold text-white">Skills I Want to Learn (Want)</h3>
+        <form onSubmit={handleAddWant} className="flex gap-2 mt-2">
+          <input
+            type="text"
+            placeholder="e.g. Guitar"
+            value={wantInput}
+            onChange={(e) => setWantInput(e.target.value)}
+            className="flex-1 p-2 bg-dark border border-border rounded-lg text-white focus:ring-2 focus:ring-primary"
+            required
+          />
+          <Button type="submit" variant="success" size="sm">Add</Button>
+        </form>
+        <ul className="mt-4 space-y-2">
+          {wants.map((w) => (
+            <li key={w.id} className="flex justify-between items-center bg-dark p-3 rounded-lg border border-border">
+              <span className="text-white">{w.skill.name}</span>
+              <Button variant="danger" size="sm" onClick={() => handleRemoveWant(w.skill.id)}>Remove</Button>
+            </li>
+          ))}
+        </ul>
+      </Card>
     </div>
   );
 }
