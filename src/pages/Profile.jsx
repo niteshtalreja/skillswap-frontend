@@ -93,7 +93,7 @@ const handleRemoveWant = async (skillId) => {
         >
         View My Matches →
         </Link>
-      </div>
+        </div>
       <p>Email: {user?.email}</p>
       <p>City: {user?.city}</p>
 
