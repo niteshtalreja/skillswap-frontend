@@ -7,6 +7,8 @@ import Profile from "./pages/Profile";
 import Matches from "./pages/Matches";       // ✅ Import
 import Requests from "./pages/Requests";
 import Dashboard from "./pages/Dashboard";
+import ProfileEdit from './pages/ProfileEdit';
+
 
 function App() {
   return (
@@ -20,6 +22,7 @@ function App() {
           <Route path="matches" element={<Matches />} />     {/* ✅ Route */}
           <Route path="requests" element={<Requests />} />
           <Route path="dashboard" element={<Dashboard />} />
+          <Route path="profile/edit" element={<ProfileEdit />} />
         </Route>
       </Routes>
     </BrowserRouter>

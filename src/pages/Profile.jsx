@@ -88,6 +88,10 @@ export default function Profile() {
         <Link to="/matches" className="text-primary hover:text-primary/80 transition-colors mt-2 inline-block">
           View My Matches →
         </Link>
+        <Link to="/profile/edit" className="text-primary hover:text-primary/80">
+           Edit Profile
+        </Link>
+
         <p className="text-gray-400 mt-2">Email: {user?.email}</p>
         <p className="text-gray-400">City: {user?.city}</p>
 
