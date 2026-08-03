@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import { getMyOffers, getMyWants } from '../services/skillService'
 import { getMyMatches } from '../services/matchService'
 import { getMySentRequests, getMyReceivedRequests } from '../services/exchangeRequestService'
+import { getCurrentUser } from '../services/userService'
 
 const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const [userDetails, setUserDetails] = useState(null)
   const [stats, setStats] = useState({
     offers: 0,
     wants: 0,
@@ -16,7 +19,20 @@ const Dashboard = () => {
   })
   const [loading, setLoading] = useState(true)
 
-  // ✅ FUNCTION PEHLE DEFINE KAREIN
+  useEffect(() => {
+    loadDashboardData()
+    loadUserDetails()
+  }, [])
+
+  const loadUserDetails = async () => {
+    try {
+      const res = await getCurrentUser()
+      setUserDetails(res.data)
+    } catch (err) {
+      console.error('Error loading user details:', err)
+    }
+  }
+
   const loadDashboardData = async () => {
     try {
       const [offers, wants, matches, sent, received] = await Promise.all([
@@ -40,11 +56,6 @@ const Dashboard = () => {
     }
   }
 
-  // ✅ PHIR USE EFFECT
-  useEffect(() => {
-    loadDashboardData()
-  }, [])
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -58,7 +69,7 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-8">
-      {/* Welcome Section */}
+      {/* Welcome Section with User Details */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-heading font-bold text-white">
@@ -67,10 +78,22 @@ const Dashboard = () => {
           <p className="text-gray-400 mt-1">
             Here's your skill exchange summary
           </p>
+
+          {/* ✅ USER DETAILS — ADDED */}
+          <div className="mt-4 space-y-1 text-sm text-gray-300 border-t border-border pt-4">
+            <p><span className="text-gray-500">Email:</span> {userDetails?.email || user.email}</p>
+            <p><span className="text-gray-500">City:</span> {userDetails?.city || user.city || 'Not set'}</p>
+            <p><span className="text-gray-500">Bio:</span> {userDetails?.bio || user.bio || 'No bio yet'}</p>
+            <Link to="/profile/edit" className="text-primary hover:text-primary/80 transition-colors text-sm">
+              ✏️ Edit Profile
+            </Link>
+          </div>
         </div>
-        <Button onClick={() => window.location.href = '/profile'}>
-          Manage Skills
-        </Button>
+        <Link to="/profile">
+          <Button>
+            Manage Skills
+          </Button>
+        </Link>
       </div>
 
       {/* Stats Grid */}
